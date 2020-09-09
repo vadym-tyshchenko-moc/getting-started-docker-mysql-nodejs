@@ -8,10 +8,6 @@ Running a nodejs application with mysql database using docker and microservice a
 - Launch our simple node app in a separate container.
 - Link these two containers and test our integrated mysql-nodejs app.
 
-### Youtube link-
-
-Watch this tutorial at https://youtu.be/tIbMSqTEpfY
-
 ### Prerequisite
 
 - must have docker set up and running on your system
@@ -39,7 +35,7 @@ Watch this tutorial at https://youtu.be/tIbMSqTEpfY
 
     ```
 6. We'll initialize our test database with a sample schema. 
-Download [test-dump.sql](https://github.com/varunon9/getting-started-docker-mysql-nodejs/blob/master/mysql-microservice/test-dump.sql) and put it inside mysql-microservice folder along with Dockerfile
+Download and put it inside mysql-microservice folder along with Dockerfile
 
 7. Create a data directory where mysql will store its content `mkdir data`. 
 We will specify this directory wile running our mysql container. 
@@ -49,7 +45,6 @@ On Linux default storage directory is `/var/lib/mysql` but in this tutorial we'l
 Note that we are inside mysql-microservice directory. `test-mysql` would be name of our image
 
 9. You can check your newly built image using `docker images`
-![Building the image using Dockerfile](./screenshots/building-test-mysql-image.png)
 
 10. Run the newly created docker image as container 
     ```
@@ -67,7 +62,6 @@ We are also naming our container as test-mysql-microservice `--name`
 12. Check logs to see if everything went smooth `docker logs test-mysql-microservice`
 
 13. Check your container state `docker ps`
-![Running the docker image](./screenshots/running-test-mysql-microservice-container.png)
 
 14. We have successfully launched a mysql container
 
@@ -88,7 +82,6 @@ Use password=password when prompt and hit enter
 
 4. If connected successfully you can see a sample table students `show tables` 
 `exit` when done.
-![Connecting to mysql container from host](./screenshots/connecting-to-test-mysql-microservice.png)
 
 ### Launching nodejs app in a container
 
@@ -96,27 +89,6 @@ Use password=password when prompt and hit enter
 2. create directory for node microservice `mkdir nodejs-microservice`
 3. Move to this directory `cd nodejs-microservice/`
 4. Create a Dockerfile with following content (name of file will be `Dockerfile`)
-    ```
-    # Use Node v8 as the base image.
-    FROM node:8
-
-    # create and set app directory
-    RUN mkdir -p /usr/src/app
-    WORKDIR /usr/src/app
-
-    # Install app dependencies
-    # A wildcard is used to ensure both package.json AND package-lock.json are copied
-    # where available (npm@5+)
-    COPY package*.json ./
-    RUN npm install
-
-    # Copy app source from current host directory to container working directory
-    COPY . .
-
-    # Run app
-    CMD ["npm", "start"]
-
-    ```
 5. We need a package.json file for our node-microservice app as well as source code.
 For this tutorial, I've already created one. 
 Download [package.json](https://github.com/varunon9/getting-started-docker-mysql-nodejs/blob/master/nodejs-microservice/package.json) as well as [index.js](https://github.com/varunon9/getting-started-docker-mysql-nodejs/blob/master/nodejs-microservice/index.js) and put it inside nodejs-microservice folder along with Dockerfile.
@@ -125,28 +97,8 @@ Download [package.json](https://github.com/varunon9/getting-started-docker-mysql
 Note that we are inside nodejs-microservice directory. `test-nodejs` would be name of our image
 
 7. You can check your newly built image using `docker images`
-![Building the image using Dockerfile](./screenshots/building-test-nodejs-image.png)
-
 8. Run the newly created docker image as container 
-    ```
-    docker run  -d \
-    --publish 4000:4000 \
-    -e MYSQL_USER='root' \
-    -e MYSQL_PASSWORD='password' \
-    -e MYSQL_DATABASE='test' \
-    -e MYSQL_HOST='172.17.0.2' \
-    --link test-mysql-microservice:db \
-    --name=test-nodejs-microservice test-nodejs
-    ```
-![Running the image using Dockerfile](./screenshots/running-test-nodejs-microservice-container.png)
-
 9. Explaination of above command-
-* `-d` run in detach mode
-* `--publish` map the host port 4000 to the container port 4000
-* `-e` pass environment variables to nodejs app necessary to make mysql connection (check index.js file)
-* `--link test-mysql-microservice:db` link to the container named test-mysql-microservice and refer to it as db
-* `--name` naming our container as test-nodejs-microservice
-
 10. How to know your MYSQL_HOST- 
 Note that I am using `172.17.0.2` ip-address as MYSQL_HOST. This is the IpAddress of our test-mysql-microservice container.
 You must replace this value to your container's ipAddress. Use `docker inspect test-mysql-microservice | grep IPAddress`
